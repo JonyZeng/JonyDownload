@@ -2,7 +2,9 @@ package com.example.jonyz.jonydownload.Service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.annotation.Nullable;
 
 import com.example.jonyz.jonydownload.Bean.FileBean;
@@ -24,6 +26,7 @@ public class DownloadService extends Service {
 
 
     private FileBean fileBean;
+    private DownloadService.initThread initThread;
 
     @Nullable
     @Override
@@ -38,11 +41,24 @@ public class DownloadService extends Service {
             //创建实体类对象
             fileBean = (FileBean) intent.getSerializableExtra("fileBean");
             //创建一个线程类，在线程中执行耗时操作
-            new initThread();
+            initThread = new initThread();
+           //DownloadTask();
+
         }
         return super.onStartCommand(intent, flags, startId);
 
     }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        switch (msg.what){
+            case Config.MSG_INIT://开始下载
+
+        }
+        }
+    };
 
     /**
      * 初始化的线程类
@@ -81,6 +97,10 @@ public class DownloadService extends Service {
                 randomAccessFile = new RandomAccessFile(file, "rwd");//随机访问，随时读写
                 randomAccessFile.setLength(length);
                 fileBean.setDownSize(length);   //设置文件的大小
+                //将fileBean通过handler传递过去
+                Message msg = new Message();
+                msg.what = Config.MSG_INIT;
+                msg.obj = fileBean;
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
