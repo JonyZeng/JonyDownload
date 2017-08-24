@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.jonyz.jonydownload.Bean.FileBean;
 import com.example.jonyz.jonydownload.Presenter.DownloadPresenter;
@@ -91,6 +92,7 @@ public class FileAdapter extends BaseAdapter {
                 //// TODO: 2017/8/23 开始下载
                 presenter = new DownloadPresenter();
                 presenter.startDownload(fileBean,context);
+                Toast.makeText(context, "点击了开始", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -99,6 +101,7 @@ public class FileAdapter extends BaseAdapter {
             public void onClick(View view) {
                 //// TODO: 2017/8/23 暂停下载
                 presenter.stopDownload(fileBean,context);
+                Toast.makeText(context, "点击了暂停", Toast.LENGTH_SHORT).show();
             }
         });
         viewHolder.mBarDown.setProgress(fileBean.getDownSize());
