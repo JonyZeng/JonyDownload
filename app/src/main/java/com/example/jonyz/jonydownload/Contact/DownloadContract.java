@@ -1,5 +1,9 @@
 package com.example.jonyz.jonydownload.Contact;
 
+import android.content.Context;
+
+import com.example.jonyz.jonydownload.Bean.FileBean;
+
 /**
  * Created by JonyZ on 2017/8/23.
  */
@@ -16,9 +20,9 @@ public class DownloadContract {
      */
     public interface IDownloadModel{
         //开始下载
-        void startDownload();
+        void startDownload(FileBean fileBean, Context context);
         //停止下载
-        void stopDownload();
+        void stopDownload(FileBean fileBean, Context context);
     }
 
     /**
@@ -26,8 +30,8 @@ public class DownloadContract {
      */
     public interface IDownPresenter{
         //开始下载
-        void startDownload();
+        void startDownload(FileBean fileBean, Context context);
         //停止下载
-        void stopDownload();
+        void stopDownload(FileBean fileBean, Context context);
     }
 }

@@ -21,7 +21,7 @@ import java.util.List;
  */
 
 public class FileAdapter extends BaseAdapter {
-    Context context;
+    Context context=null;
     List<FileBean> list = new ArrayList<>();
     LayoutInflater inflater;
     private MyViewHolder viewHolder;
@@ -71,7 +71,7 @@ public class FileAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        FileBean fileBean=list.get(i);
+        final FileBean fileBean=list.get(i);
         if (view==null){
             view=inflater.inflate(R.layout.item,null);
             viewHolder = new MyViewHolder();
@@ -90,14 +90,15 @@ public class FileAdapter extends BaseAdapter {
             public void onClick(View view) {
                 //// TODO: 2017/8/23 开始下载
                 presenter = new DownloadPresenter();
-                presenter.startDownload();
+                presenter.startDownload(fileBean,context);
+
             }
         });
         viewHolder.mBtnstop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //// TODO: 2017/8/23 暂停下载
-                presenter.stopDownload();
+                presenter.stopDownload(fileBean,context);
             }
         });
         viewHolder.mBarDown.setProgress(fileBean.getDownSize());
@@ -113,6 +114,11 @@ public class FileAdapter extends BaseAdapter {
         ProgressBar mBarDown;
         Button mBtnstart;
         Button mBtnstop;
+    }
+    public void updataProgress(int id, int progress) {
+        FileBean info = list.get(id);
+        info.setDownSize(progress);
+        notifyDataSetChanged();
     }
 
 }
