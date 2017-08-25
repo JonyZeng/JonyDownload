@@ -24,7 +24,7 @@ public class ThreadUtil  {
     /**
      * 加锁,插入数据库线程
      */
-    private synchronized void insertThread(UrlBean urlBean) {
+    public synchronized void insertThread(UrlBean urlBean) {
         readableDatabase = dbUtil.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put("thread_id",urlBean.getId());
@@ -39,7 +39,7 @@ public class ThreadUtil  {
     /**
      * 删除数据库线程
      */
-    private synchronized  void delThread(UrlBean urlBean) {
+    public synchronized  void delThread(UrlBean urlBean) {
         readableDatabase = dbUtil.getReadableDatabase();
         readableDatabase.delete("urlBean","url=?",new String[]{urlBean.getUrl()});
         readableDatabase.close();
@@ -48,14 +48,19 @@ public class ThreadUtil  {
     /**
      * 更新线程
      */
-    private synchronized void updateThread(UrlBean urlBean) {
+    public synchronized void updateThread(UrlBean urlBean) {
         readableDatabase=dbUtil.getReadableDatabase();
         ContentValues contentValues= new ContentValues();
         contentValues.put("finished",urlBean.getFinished());
         readableDatabase.update("urlBean",contentValues,null,new String[]{urlBean.getUrl()});
     }
 
-    private synchronized List<UrlBean>queryThread(String Url){
+    /**
+     * 查询数据库线程
+     * @param Url
+     * @return
+     */
+    public synchronized List<UrlBean>queryThread(String Url){
         readableDatabase=dbUtil.getReadableDatabase();
         //readableDatabase.query("urlBean",)
         return null;

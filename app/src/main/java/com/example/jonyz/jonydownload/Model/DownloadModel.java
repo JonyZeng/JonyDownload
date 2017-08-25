@@ -9,8 +9,6 @@ import com.example.jonyz.jonydownload.Contact.DownloadContract;
 import com.example.jonyz.jonydownload.Service.DownloadService;
 import com.example.jonyz.jonydownload.Utils.Config;
 
-import java.io.Serializable;
-
 /**
  * Created by JonyZ on 2017/8/23.
  */
@@ -24,7 +22,7 @@ public class DownloadModel implements DownloadContract.IDownloadModel,View.OnCli
         //开始下载
         intent = new Intent(context,DownloadService.class);
         intent.setAction(Config.ACTION_START);
-        intent.putExtra("fileBean", (Serializable) fileBean);
+        intent.putExtra("fileBean",fileBean);
         context.startService(intent);
 
     }

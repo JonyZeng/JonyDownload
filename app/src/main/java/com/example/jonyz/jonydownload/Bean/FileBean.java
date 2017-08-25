@@ -1,11 +1,13 @@
 package com.example.jonyz.jonydownload.Bean;
 
+import java.io.Serializable;
+
 /**
  * 下载文件的实体类
  * Created by JonyZ on 2017/8/23.
  */
 
-public class FileBean {
+public class FileBean implements Serializable {
     public String fileName;
     public Integer fileSize;
     public Integer filePause;//下载暂停位置

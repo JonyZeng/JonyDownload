@@ -21,6 +21,9 @@ public class UrlBean {
         this.finished = finished;
     }
 
+    public UrlBean() {
+    }
+
     public String getUrl() {
         return url;
     }
