@@ -43,6 +43,11 @@ public class DownloadService extends Service {
             //创建一个线程类，在线程中执行耗时操作
             initThread = new initThread();
            //DownloadTask();
+            //通过线程池开启线程
+            DownloadTask.cachedThreadPool.execute(initThread);
+
+        }else if (intent.getAction().equals(Config.ACTION_STOP)){
+            //停止下载
 
         }
         return super.onStartCommand(intent, flags, startId);
@@ -55,6 +60,8 @@ public class DownloadService extends Service {
             super.handleMessage(msg);
         switch (msg.what){
             case Config.MSG_INIT://开始下载
+                //调用DownloadTask的download下载
+
 
         }
         }
@@ -101,10 +108,22 @@ public class DownloadService extends Service {
                 Message msg = new Message();
                 msg.what = Config.MSG_INIT;
                 msg.obj = fileBean;
+                handler.sendMessage(msg);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            }finally {//断开连接
+                if (connection!=null){
+                    connection.disconnect();
+                }
+                if (randomAccessFile!=null){
+                    try {
+                        randomAccessFile.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             super.run();
