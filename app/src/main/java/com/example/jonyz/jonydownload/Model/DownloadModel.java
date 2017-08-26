@@ -2,6 +2,7 @@ package com.example.jonyz.jonydownload.Model;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 
 import com.example.jonyz.jonydownload.Bean.FileBean;
@@ -15,6 +16,7 @@ import com.example.jonyz.jonydownload.Utils.Config;
 
 public class DownloadModel implements DownloadContract.IDownloadModel,View.OnClickListener{
 
+    private static final String TAG = DownloadModel.class.getSimpleName();
     private Intent intent;
 
     @Override
@@ -23,6 +25,7 @@ public class DownloadModel implements DownloadContract.IDownloadModel,View.OnCli
         intent = new Intent(context,DownloadService.class);
         intent.setAction(Config.ACTION_START);
         intent.putExtra("fileBean",fileBean);
+        Log.d(TAG, "startDownload: 开启下载的服务");
         context.startService(intent);
 
     }
@@ -30,6 +33,11 @@ public class DownloadModel implements DownloadContract.IDownloadModel,View.OnCli
     @Override
     public void stopDownload(FileBean fileBean, Context context) {
         //暂停下载
+        Intent intent = new Intent(context, DownloadService.class);
+        intent.setAction(Config.ACTION_STOP);
+        intent.putExtra("fileBean", fileBean);
+        Log.d(TAG, "stopDownload: 停止下载服务");
+        context.startService(intent);
     }
 
     @Override

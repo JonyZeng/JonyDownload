@@ -1,6 +1,7 @@
 package com.example.jonyz.jonydownload.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 
 public class FileAdapter extends BaseAdapter {
+    private static final String TAG = FileAdapter.class.getSimpleName();
     Context context=null;
     List<FileBean> list = new ArrayList<>();
     LayoutInflater inflater;
@@ -92,6 +94,7 @@ public class FileAdapter extends BaseAdapter {
                 //// TODO: 2017/8/23 开始下载
                 presenter = new DownloadPresenter();
                 presenter.startDownload(fileBean,context);
+                Log.d(TAG, "onClick:开始");
                 Toast.makeText(context, "点击了开始", Toast.LENGTH_SHORT).show();
 
             }
@@ -101,6 +104,7 @@ public class FileAdapter extends BaseAdapter {
             public void onClick(View view) {
                 //// TODO: 2017/8/23 暂停下载
                 presenter.stopDownload(fileBean,context);
+                Log.d(TAG, "onClick:暂停");
                 Toast.makeText(context, "点击了暂停", Toast.LENGTH_SHORT).show();
             }
         });

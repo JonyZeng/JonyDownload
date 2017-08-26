@@ -16,6 +16,8 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 多文件多线程断点下载服务
@@ -27,28 +29,35 @@ public class DownloadService extends Service {
 
     private FileBean fileBean;
     private DownloadService.initThread initThread;
+    private Map<Integer,DownloadTask> taskMap=new LinkedHashMap<>();
+    private DownloadTask task;
+
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         if (intent.getAction().equals(Config.ACTION_START)) {
             //接收到action，开启线程下载
             //创建实体类对象
             fileBean = (FileBean) intent.getSerializableExtra("fileBean");
             //创建一个线程类，在线程中执行耗时操作
-            initThread = new initThread();
+            initThread = new initThread(fileBean);
            //DownloadTask();
             //通过线程池开启线程
             DownloadTask.cachedThreadPool.execute(initThread);
 
         }else if (intent.getAction().equals(Config.ACTION_STOP)){
             //停止下载
-
+            fileBean= (FileBean) intent.getSerializableExtra("fileBean");
+            task = taskMap.get(fileBean);
+            task.isonPause=true;
         }
         return super.onStartCommand(intent, flags, startId);
 
@@ -61,8 +70,13 @@ public class DownloadService extends Service {
         switch (msg.what){
             case Config.MSG_INIT://开始下载
                 //调用DownloadTask的download下载
-
-
+                fileBean= (FileBean) msg.obj;
+                DownloadTask task = new DownloadTask(DownloadService.this, fileBean, 3);
+                task.download();
+                taskMap.put(fileBean.getId(),task);
+                Intent intent = new Intent(Config.ACTION_START);
+                intent.putExtra("fileBean",fileBean);
+                sendBroadcast(intent);
         }
         }
     };
@@ -76,6 +90,12 @@ public class DownloadService extends Service {
         private int responseCode;
         private int length = 0;   //判断长度
         private RandomAccessFile randomAccessFile;
+        private FileBean fileBean = null;
+
+        public initThread(FileBean fileBean) {
+            super();
+            this.fileBean = fileBean;
+        }
 
         @Override
         public void run() {

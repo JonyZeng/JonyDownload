@@ -8,7 +8,7 @@ import android.os.Environment;
  */
 
 public class Config {
-    public static final String URLONE = "http://www.imooc.com/mobile/imooc.apk";
+    public static final String URLONE = "https://dldir1.qq.com/qqfile/qq/TIM1.2.0/21645/TIM1.2.0.exe";
     public static final String URLTWO = "http://www.imooc.com/download/Activator.exe";
     public static final String URLTHREE = "http://s1.music.126.net/download/android/CloudMusic_3.4.1.133604_official.apk";
     public static final String URLFOUR = "http://study.163.com/pub/study-android-official.apk";

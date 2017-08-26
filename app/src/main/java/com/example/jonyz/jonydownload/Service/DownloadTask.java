@@ -1,12 +1,22 @@
 package com.example.jonyz.jonydownload.Service;
 
 import android.content.Context;
+import android.content.Intent;
 
 import com.example.jonyz.jonydownload.Bean.FileBean;
 import com.example.jonyz.jonydownload.Bean.UrlBean;
+import com.example.jonyz.jonydownload.Utils.Config;
 import com.example.jonyz.jonydownload.Utils.DBUtil;
 import com.example.jonyz.jonydownload.Utils.ThreadUtil;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +34,9 @@ public class DownloadTask {
     private ThreadUtil threadUtil;
     public int threadCount=1;
     public Context context;
+    private ArrayList<DownloadList> downloadLists;
+    private UrlBean urlBean;
+    public boolean isonPause=false;//判断是否暂停
 
     public DownloadTask(Context context,FileBean fileBean,int threadCount) {
         this.threadCount=threadCount;
@@ -33,11 +46,8 @@ public class DownloadTask {
     }
 
     //下载文件
-    public void download(Context context){
-        //需要一个操作数据库的帮助类
-        dbUtil.getInstance(context);
-        fileBean = new FileBean();
-        //通过查询list获取大小，分配线程
+    public void download(){
+        //if ()
         urlBeanList =threadUtil.queryThread(fileBean.getUrl());
         //获取到数据库里面查询的list
         if (urlBeanList.size()==0){
@@ -55,12 +65,130 @@ public class DownloadTask {
                     end=length-1;
                 }
                 //开启线程
-                UrlBean urlBean=new UrlBean(fileBean.getUrl(),i,star,end,0);
+                urlBean = new UrlBean(fileBean.getUrl(),i,star,end,0);
                 urlBeanList.add(urlBean);
             }
         }
+        //下载文件线程的内部类
+        downloadLists = new ArrayList<>();
     }
 
+    /**
+     * 线程下载文件执行的类，继承thread
+     */
+    private class DownloadList extends Thread {
 
 
+        private HttpURLConnection urlConnection;
+        private UrlBean urlBean;
+        private File file;
+        private RandomAccessFile accessFile;
+        private Integer finished;
+        private Intent intent;
+        private InputStream inputStream;
+        private boolean isFinished;
+
+        public DownloadList(UrlBean urlBean) {
+            this.urlBean = urlBean;
+        }
+
+        @Override
+        public void run() {//执行下载耗时操作
+            //获取http对象
+            try {
+                URL url= new URL(fileBean.getUrl());
+                try {
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setConnectTimeout(2000);
+                    urlConnection.setRequestMethod("GET");
+                    //设置下载的头部
+                    int start=urlBean.getStart()+urlBean.getFinished();
+                    //设置下载结束的位置
+                    urlConnection.setRequestProperty("Range", "bytes=" + start + "-" + urlBean.getEnd());
+                    //新建文件对象
+                    file = new File(Config.DownloadPath, fileBean.getFileName());
+                    //随机访问读写对象
+                    accessFile = new RandomAccessFile(file, "rwd");
+                    accessFile.seek(start);
+                    int respCode=urlConnection.getResponseCode();
+                    //刷新当前以及下载的大小
+                    finished +=fileBean.getDownSize();
+                    intent = new Intent();
+                    intent.setAction(Config.ACTION_UPDATE);
+                    if (respCode==HttpURLConnection.HTTP_PARTIAL){  //请求成功
+                        //获取输入流对象
+                        inputStream = urlConnection.getInputStream();
+                        //设置一个byte数组，中转数据
+                        byte[] bytes = new byte[1024];
+                        int length;
+                        //定义UI刷新时间
+                        long time=System.currentTimeMillis();
+                        while ((length=inputStream.read(bytes))!=-1){
+                            accessFile.write(bytes,0,length);
+                            //实时获取下载进度，刷新UI
+                            finished+=length;
+                            urlBean.setFinished(urlBean.getFinished()+length);
+                            if (System.currentTimeMillis()-time>500){
+                                time=System.currentTimeMillis();
+                                intent.putExtra("finished",finished);
+                                intent.putExtra("id",fileBean.getId());
+                                context.sendBroadcast(intent);
+                            }
+                            if (isonPause){
+                                threadUtil.updateThread(urlBean);
+                            }
+
+                        }
+
+
+                    }
+                    //当前线程是否下载完成
+                    isFinished = true;
+                    //判断所有线程是否下载完成
+                    checkAllFinished();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }finally {
+                if (urlConnection!=null){
+                    urlConnection.disconnect();
+                }
+                if (inputStream!=null){
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (accessFile!=null){
+                    try {
+                        accessFile.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            super.run();
+        }
+
+        private synchronized void checkAllFinished() {
+            boolean allFinished=true;
+            for (DownloadList down:downloadLists) {
+                if (!down.isFinished)
+                allFinished=false;
+                break;
+            }
+            if (allFinished==true){
+                threadUtil.delThread(urlBean);
+                intent=new Intent(Config.ACTION_FINISHED);
+                intent.putExtra("urlBean",urlBean);
+                context.sendBroadcast(intent);
+            }
+        }
+
+
+    }
 }

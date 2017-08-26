@@ -1,11 +1,13 @@
 package com.example.jonyz.jonydownload.Bean;
 
+import java.io.Serializable;
+
 /**
  * 下载线程实体类
  * Created by JonyZ on 2017/8/23.
  */
 
-public class UrlBean {
+public class UrlBean implements Serializable{
 
     public String url;
     public int    id;
