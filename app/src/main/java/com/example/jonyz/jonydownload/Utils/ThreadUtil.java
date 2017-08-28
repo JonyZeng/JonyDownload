@@ -36,16 +36,16 @@ public class ThreadUtil  {
         values.put("start",urlBean.getStart());
         values.put("end",urlBean.getEnd());
         values.put("finished",urlBean.getFinished());
-        readableDatabase.insert("urlBean",null,values);
+        readableDatabase.insert("download_info",null,values);
         readableDatabase.close();
     }
 
     /**
      * 删除数据库线程
      */
-    public synchronized  void delThread(UrlBean urlBean) {
+    public synchronized  void delThread(String  url) {
         readableDatabase = dbUtil.getReadableDatabase();
-        readableDatabase.delete("urlBean","url=?",new String[]{urlBean.getUrl()});
+        readableDatabase.delete("download_info","url=?",new String[]{url});
         readableDatabase.close();
     }
 
@@ -56,7 +56,7 @@ public class ThreadUtil  {
         readableDatabase=dbUtil.getReadableDatabase();
         ContentValues contentValues= new ContentValues();
         contentValues.put("finished",urlBean.getFinished());
-        readableDatabase.update("urlBean",contentValues,null,new String[]{urlBean.getUrl()});
+        readableDatabase.update("download_info",contentValues,null,new String[]{urlBean.getUrl()});
     }
 
     /**
@@ -78,6 +78,7 @@ public class ThreadUtil  {
             urlBean.setFinished(cursor.getInt(cursor.getColumnIndex("finished")));
             list.add(urlBean);
         }
+
         cursor.close();
         readableDatabase.close();
 

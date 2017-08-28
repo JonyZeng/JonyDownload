@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.example.jonyz.jonydownload.Bean.FileBean;
 import com.example.jonyz.jonydownload.Utils.Config;
@@ -27,6 +29,7 @@ import java.util.Map;
 public class DownloadService extends Service {
 
 
+    private static final String TAG = DownloadService.class.getSimpleName();
     private FileBean fileBean;
     private DownloadService.initThread initThread;
     private Map<Integer,DownloadTask> taskMap=new LinkedHashMap<>();
@@ -107,9 +110,12 @@ public class DownloadService extends Service {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setConnectTimeout(2000);
                 connection.setRequestMethod("GET");
+                Log.i(TAG, "run:获取网络请求");
                 responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     length = connection.getContentLength();
+                }else{
+                    Toast.makeText(DownloadService.this, "请检查网络情况", Toast.LENGTH_SHORT).show();
                 }
                 if (length <= 0) {//说明下载文件不存在
                     return;

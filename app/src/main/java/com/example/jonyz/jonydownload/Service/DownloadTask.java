@@ -2,6 +2,7 @@ package com.example.jonyz.jonydownload.Service;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.example.jonyz.jonydownload.Bean.FileBean;
 import com.example.jonyz.jonydownload.Bean.UrlBean;
@@ -27,6 +28,7 @@ import java.util.concurrent.Executors;
  */
 
 public class DownloadTask {
+    private static final String TAG = DownloadTask.class.getSimpleName();
     public static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
     public List<UrlBean> urlBeanList;
     private FileBean fileBean;
@@ -34,7 +36,7 @@ public class DownloadTask {
     private ThreadUtil threadUtil;
     public int threadCount=1;
     public Context context;
-    private ArrayList<DownloadList> downloadLists;
+    private List<DownloadList> downloadLists=null;
     private UrlBean urlBean;
     public boolean isonPause=false;//判断是否暂停
 
@@ -48,11 +50,12 @@ public class DownloadTask {
     //下载文件
     public void download(){
         //if ()
+        Log.i(TAG, "download:"+fileBean.getUrl());
         urlBeanList =threadUtil.queryThread(fileBean.getUrl());
         //获取到数据库里面查询的list
-        if (urlBeanList.size()==0){
+        if (urlBeanList.size()==0){ //数据库中不存在，第一次下载
             //获取文件大小
-            int length=urlBeanList.size();
+            int length=fileBean.getDownSize();
             //获取需要分的模块
             int block=length/threadCount;
 
@@ -69,8 +72,15 @@ public class DownloadTask {
                 urlBeanList.add(urlBean);
             }
         }
+        Log.d(TAG, "download:");
         //下载文件线程的内部类
         downloadLists = new ArrayList<>();
+        for (UrlBean urlBean:urlBeanList) {
+            DownloadList dowmload=new DownloadList(urlBean);
+            DownloadTask.cachedThreadPool.execute(dowmload);
+            downloadLists.add(dowmload);
+            threadUtil.insertThread(urlBean);
+        }
     }
 
     /**
@@ -79,14 +89,16 @@ public class DownloadTask {
     private class DownloadList extends Thread {
 
 
-        private HttpURLConnection urlConnection;
-        private UrlBean urlBean;
+        private HttpURLConnection urlConnection=null;
+        private RandomAccessFile accessFile=null;
+        private InputStream inputStream=null;
+
         private File file;
-        private RandomAccessFile accessFile;
-        private Integer finished;
+        private Integer finished=0;
         private Intent intent;
-        private InputStream inputStream;
-        private boolean isFinished;
+
+        private UrlBean urlBean;
+        private boolean isFinished=false;
 
         public DownloadList(UrlBean urlBean) {
             this.urlBean = urlBean;
@@ -110,17 +122,17 @@ public class DownloadTask {
                     //随机访问读写对象
                     accessFile = new RandomAccessFile(file, "rwd");
                     accessFile.seek(start);
-                    int respCode=urlConnection.getResponseCode();
                     //刷新当前以及下载的大小
-                    finished +=fileBean.getDownSize();
+                    finished +=urlBean.getFinished();
                     intent = new Intent();
                     intent.setAction(Config.ACTION_UPDATE);
+                    int respCode=urlConnection.getResponseCode();
                     if (respCode==HttpURLConnection.HTTP_PARTIAL){  //请求成功
                         //获取输入流对象
                         inputStream = urlConnection.getInputStream();
                         //设置一个byte数组，中转数据
                         byte[] bytes = new byte[1024];
-                        int length;
+                        int length=-1;
                         //定义UI刷新时间
                         long time=System.currentTimeMillis();
                         while ((length=inputStream.read(bytes))!=-1){
@@ -131,11 +143,14 @@ public class DownloadTask {
                             if (System.currentTimeMillis()-time>500){
                                 time=System.currentTimeMillis();
                                 intent.putExtra("finished",finished);
+                                Log.d(TAG, "finished:"+finished);
                                 intent.putExtra("id",fileBean.getId());
+                                Log.d(TAG, "finished"+fileBean.getId());
                                 context.sendBroadcast(intent);
                             }
                             if (isonPause){
                                 threadUtil.updateThread(urlBean);
+                                return;
                             }
 
                         }
@@ -182,7 +197,8 @@ public class DownloadTask {
                 break;
             }
             if (allFinished==true){
-                threadUtil.delThread(urlBean);
+                Log.d(TAG, "checkAllFinished: 下载完成");
+                threadUtil.delThread(fileBean.getUrl());
                 intent=new Intent(Config.ACTION_FINISHED);
                 intent.putExtra("urlBean",urlBean);
                 context.sendBroadcast(intent);

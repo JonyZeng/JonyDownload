@@ -82,32 +82,33 @@ public class FileAdapter extends BaseAdapter {
             viewHolder.mBarDown=(ProgressBar)view.findViewById(R.id.Pb_down);
             viewHolder.mBtnstart=(Button)view.findViewById(R.id.Btn_start);
             viewHolder.mBtnstop=(Button) view.findViewById(R.id.Btn_stop);
+            viewHolder.mTvfileName.setText(list.get(i).getFileName());
+            viewHolder.mBarDown.setProgress(fileBean.getDownSize());
+            viewHolder.mBtnstart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //// TODO: 2017/8/23 开始下载
+                    presenter = new DownloadPresenter();
+                    presenter.startDownload(fileBean,context);
+                    Log.d(TAG, "onClick:开始");
+                    Toast.makeText(context, "点击了开始", Toast.LENGTH_SHORT).show();
+
+                }
+            });
+            viewHolder.mBtnstop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //// TODO: 2017/8/23 暂停下载
+                    presenter.stopDownload(fileBean,context);
+                    Log.d(TAG, "onClick:暂停");
+                    Toast.makeText(context, "点击了暂停", Toast.LENGTH_SHORT).show();
+                }
+            });
             view.setTag(viewHolder);
         }else {
             viewHolder= (MyViewHolder) view.getTag();
         }
-        viewHolder.mTvfileName.setText(list.get(i).getFileName());
-        viewHolder.mBarDown.setMax(100);
-        viewHolder.mBtnstart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //// TODO: 2017/8/23 开始下载
-                presenter = new DownloadPresenter();
-                presenter.startDownload(fileBean,context);
-                Log.d(TAG, "onClick:开始");
-                Toast.makeText(context, "点击了开始", Toast.LENGTH_SHORT).show();
 
-            }
-        });
-        viewHolder.mBtnstop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //// TODO: 2017/8/23 暂停下载
-                presenter.stopDownload(fileBean,context);
-                Log.d(TAG, "onClick:暂停");
-                Toast.makeText(context, "点击了暂停", Toast.LENGTH_SHORT).show();
-            }
-        });
         viewHolder.mBarDown.setProgress(fileBean.getDownSize());
         return view;
 
@@ -125,6 +126,7 @@ public class FileAdapter extends BaseAdapter {
     public void updataProgress(int id, int progress) {
         FileBean info = list.get(id);
         info.setDownSize(progress);
+       // viewHolder.mBarDown.setProgress(progress);
         notifyDataSetChanged();
     }
 

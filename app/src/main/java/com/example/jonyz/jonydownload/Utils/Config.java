@@ -18,6 +18,6 @@ public class Config {
     public static final String ACTION_FINISHED = "ACTION_FINISHED";
     // 文件的保存路徑
     public static final String DownloadPath = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + "/download/";
+            + "/download";
     public static final int MSG_INIT = 0;
 }

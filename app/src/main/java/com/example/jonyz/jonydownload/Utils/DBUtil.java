@@ -14,7 +14,7 @@ public class DBUtil extends SQLiteOpenHelper {
     private static final String TAG = DBUtil.class.getSimpleName();
     public static int VERSION = 1;
     public static String dateName = "download.db";
-    public static String CREATE = "create table download_info(_id integer primary key autoincrement, " +
+    private static final String CREATE = "create table download_info(_id integer primary key autoincrement, " +
             "thread_id integer, url varchar, start integer, end integer, finished integer)";
     public static String DROP = "drop table if exists thread_info";
     private static DBUtil dbUtil;
@@ -28,12 +28,14 @@ public class DBUtil extends SQLiteOpenHelper {
         if (dbUtil == null) {
             Log.i(TAG, "DBUtil.getInstance: ");
             dbUtil = new DBUtil(context);
+
         }
         return dbUtil;
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+
         sqLiteDatabase.execSQL(CREATE);
         Log.d(TAG, "onCreate: ");
     }

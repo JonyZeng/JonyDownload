@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements DownloadContract.IDownloadView,View.OnClickListener{
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     ListView listView;
     private FileAdapter mAdapter;
     private UrlBean urlBean;
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements DownloadContract.
             if (Config.ACTION_UPDATE.equals(intent.getAction())) {
                 // 更新进度条的时候
                 int finished = intent.getIntExtra("finished", 0);
+                Log.d(TAG, "onReceive:finsihed"+finished);
                 int id = intent.getIntExtra("id", 0);
                 mAdapter.updataProgress(id, finished);
 

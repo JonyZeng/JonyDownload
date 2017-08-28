@@ -11,7 +11,7 @@ public class FileBean implements Serializable {
     public String fileName;
     public Integer fileSize;
     public Integer filePause;//下载暂停位置
-    public Integer DownSize; //已经下载的大小
+    public Integer DownSize; //finished
     public Integer id;
     public String Url;
 
