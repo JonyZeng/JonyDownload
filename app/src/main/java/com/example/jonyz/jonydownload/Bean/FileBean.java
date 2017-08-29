@@ -16,9 +16,6 @@ public class FileBean implements Serializable {
     public String Url;
 
 
-    public FileBean() {
-    }
-
     /**
      *
      * @param fileName 文件名

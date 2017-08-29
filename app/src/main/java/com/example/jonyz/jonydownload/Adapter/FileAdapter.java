@@ -78,7 +78,7 @@ public class FileAdapter extends BaseAdapter {
         if (view==null){
             view=inflater.inflate(R.layout.item,null);
             viewHolder = new MyViewHolder();
-            viewHolder.mTvfileName=(TextView)view.findViewById(R.id.Tv_fileName);
+            viewHolder.mTvfileName= (TextView) view.findViewById(R.id.Tv_fileName);
             viewHolder.mBarDown=(ProgressBar)view.findViewById(R.id.Pb_down);
             viewHolder.mBtnstart=(Button)view.findViewById(R.id.Btn_start);
             viewHolder.mBtnstop=(Button) view.findViewById(R.id.Btn_stop);

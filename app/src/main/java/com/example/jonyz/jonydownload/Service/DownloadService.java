@@ -52,7 +52,6 @@ public class DownloadService extends Service {
             fileBean = (FileBean) intent.getSerializableExtra("fileBean");
             //创建一个线程类，在线程中执行耗时操作
             initThread = new initThread(fileBean);
-           //DownloadTask();
             //通过线程池开启线程
             DownloadTask.cachedThreadPool.execute(initThread);
 

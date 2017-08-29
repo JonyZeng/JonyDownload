@@ -64,23 +64,23 @@ public class DownloadTask {
                 int star=block*i;
                 //确定结束下载的位置
                 int end=(i+1)*block-1;
-                if (i==threadCount-1){  //最后一个线程下载的大小
-                    end=length-1;
+                if (i==threadCount-1){  //
+                    end=length-1;   //最后一个线程下载结束的位置。
                 }
                 //开启线程
                 urlBean = new UrlBean(fileBean.getUrl(),i,star,end,0);
                 urlBeanList.add(urlBean);
             }
-        }
+    }
         Log.d(TAG, "download:");
-        //下载文件线程的内部类
-        downloadLists = new ArrayList<>();
+    //下载文件线程的内部类
+    downloadLists = new ArrayList<>();
         for (UrlBean urlBean:urlBeanList) {
-            DownloadList dowmload=new DownloadList(urlBean);
-            DownloadTask.cachedThreadPool.execute(dowmload);
-            downloadLists.add(dowmload);
-            threadUtil.insertThread(urlBean);
-        }
+        DownloadList dowmload=new DownloadList(urlBean);
+        DownloadTask.cachedThreadPool.execute(dowmload);
+        downloadLists.add(dowmload);
+        threadUtil.insertThread(urlBean);
+    }
     }
 
     /**
